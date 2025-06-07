@@ -18,15 +18,17 @@ def get_page(url: str) -> BeautifulSoup:
 class Quote:
     text: str
     author: str
-    tags: list[str]
+    tags: str
 
 
 def get_quotes(soup: BeautifulSoup) -> List[Quote]:
     queue_list = []
-    for quote in soup(".quote"):
+    for quote in soup.select(".quote"):
         text = quote.select_one(".text").get_text(strip=True)
         author = quote.select_one(".author").get_text(strip=True)
-        tags = [tag.get_text(strip=True) for tag in quote.select(".tag")]
+
+        tags_list = [tag.get_text(strip=True) for tag in quote.select(".tag")]
+        tags = str(tags_list)
 
         queue_list.append(Quote(text=text, author=author, tags=tags))
 
@@ -39,6 +41,7 @@ def get_all_quotes() -> List[Quote]:
 
     while url:
         soup = get_page(url)
+
         quotes.extend(get_quotes(soup))
 
         next_btn = soup.select_one(".next a")
@@ -47,19 +50,19 @@ def get_all_quotes() -> List[Quote]:
     return quotes
 
 
-def save_to_csv(quotes: List[Quote], output_csv_path: str) -> None:
+def save_to_csv(quotes, output_csv_path):
     with open(output_csv_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Text", "Author", "Tags"])
+        writer.writerow(["text", "author", "tags"])
 
         for quote in quotes:
-            writer.writerow([quote.text, quote.author, ", ".join(quote.tags)])
+            writer.writerow([quote.text, quote.author, quote.tags])
 
 
 def main(output_csv_path: str) -> None:
     quotes = get_all_quotes()
     save_to_csv(quotes, output_csv_path)
-    print(f"✅ {len(quotes)} quotes saved to {output_csv_path}")
+    print(f"{len(quotes)} quotes saved to {output_csv_path}")
 
 
 if __name__ == "__main__":
