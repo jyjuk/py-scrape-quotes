@@ -50,7 +50,7 @@ def get_all_quotes() -> List[Quote]:
     return quotes
 
 
-def save_to_csv(quotes, output_csv_path):
+def save_to_csv(quotes: List[Quote], output_csv_path: str) -> None:
     with open(output_csv_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(["text", "author", "tags"])
